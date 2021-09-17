@@ -6,6 +6,15 @@
 
 {% block main %}
 <div class="container">
+    <form action="/historysort" method="post">
+        <div class="form-group">
+            <select class="form-control" name="choice" placeholder="Sort By" onchange="choice.form.submit()">
+                <option value="date" disabled>Sort By</option>
+                <option value="time">Time</option>
+                <option value="name">Name</option>
+                <option value="value">Value</option>
+            </select>
+        </div>
     <table class="table table-striped">
         <thead>
             <tr>

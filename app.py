@@ -282,6 +282,22 @@ def errorhandler(e):
         e = InternalServerError()
     return apology(e.name, e.code)
 
+@app.route("/historysort", methods=["POST"])
+@login_required
+def sorthistory():
+    methodchosen = request.form.get("choice")
+    if methodchosen == "name":
+        user_id = session["user_id"]
+        purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY stock", user_id)
+        return render_template("history.html", purchasehistory=purchasehistory)
+    if methodchosen == "time":
+        user_id = session["user_id"]
+        purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY time", user_id)
+        return render_template("history.html", purchasehistory=purchasehistory)
+    if methodchosen == "value":
+        user_id = session["user_id"]
+        purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY price", user_id)
+        return render_template("history.html", purchasehistory=purchasehistory)
 
 # Listen for errors
 for code in default_exceptions:
