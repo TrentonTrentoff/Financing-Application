@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Remaining cash</th>
+                <th>Total value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td> {{ currentcash | usd }} </td>
+                <td> {{ totalvalue | usd }} </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Stock owned</th>
+                <th>Number of shares</th>
+                <th>Current price</th>
+                <th>Portfolio value</th>
+            </tr>
+        </thead>
+        <tbody> <!-- Loop through the database entries to display them in this table -->
+        {% for stock in stockowned %}
+                <tr>
+                    <td> {{ stock.stock }} </td>
+                    <td> {{ stock.shares  }} </td>
+                    <td> {{ stock.currentprice | usd }} </td>
+                    <td> {{ stock.portfoliovalue | usd }} </td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form action="/password" method="get">
+        <button class="btn btn-primary" type="submit">Change password</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Stock Price for {{ stock.name}} is {{ stock.price }}
+{% endblock %}
+
+{% block main %}
+    <h1> Stock Price for {{ stock.name}} is {{ stock.price | usd }} </h1>
+    <hr>
+    <form action="/quote" method="get">
+        <div class="form-group">
+        <h2>Search another company?</h2>
+        </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+{% endblock %}

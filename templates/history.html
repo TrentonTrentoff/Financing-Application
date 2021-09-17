@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Stock</th>
+                <th>Number of shares</th>
+                <th>Price</th>
+                <th>Bought or Sold?</th>
+                <th>Time of transaction</th>
+            </tr>
+        </thead>
+        <tbody> <!-- Loop through the database entries to display them in this table -->
+        {% for stock in purchasehistory %}
+                <tr>
+                    <td> {{ stock.stock }} </td>
+                    <td> {{ stock.shares  }} </td>
+                    <td> {{ stock.price | usd }} </td>
+                    <td> {{ stock.type }} </td>
+                    <td> {{ stock.time }} </td>
+                </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
