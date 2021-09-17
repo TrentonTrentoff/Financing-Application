@@ -2,7 +2,6 @@ import os
 from cs50 import SQL
 
 from datetime import datetime
-import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -11,7 +10,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import apology, login_required, lookup, usd
 
-token = os.environ.get('IEX_TOKEN')
 # Configure application
 app = Flask(__name__)
 
@@ -49,8 +47,8 @@ if not os.environ.get("API_KEY"):
 def index():
     """Show portfolio of stocks"""
     user_id = session["user_id"]
+    # Checks database for users purchase history
     stockowned = db.execute("SELECT * FROM history WHERE userID = ? AND shares > 0", user_id)
-    print(stockowned)
     for stock in stockowned:
         print (stock)
         currentprice = lookup(stock["stock"])
@@ -122,7 +120,6 @@ def buy():
 
     if request.method=="GET":
         return render_template("buy.html")
-    return apology("TODO")
 
 
 @app.route("/history")
@@ -268,8 +265,6 @@ def sell():
         user_id = session["user_id"]
         stockowned = db.execute("SELECT stock FROM history WHERE userID = ? AND shares > 0", user_id)
         return render_template("sell.html", stockowned=stockowned)
-    """Sell shares of stock"""
-    return apology("TODO")
 
 
 def errorhandler(e):
