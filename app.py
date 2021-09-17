@@ -50,10 +50,11 @@ def index():
     # Checks database for users purchase history
     stockowned = db.execute("SELECT * FROM history WHERE userID = ? AND shares > 0", user_id)
     for stock in stockowned:
-        print (stock)
         currentprice = lookup(stock["stock"])
+        # Adds extra elements to list returned from lookup function, adding currrent price and value for the user
         stock["currentprice"] = currentprice["price"]
         stock["portfoliovalue"] = (stock["currentprice"]) * stock["shares"]
+    # Finds current balance of user
     currentcash = db.execute("SELECT cash FROM users WHERE ID = ?", user_id)
     totalvalue = sum(item['portfoliovalue'] for item in stockowned)
     currentcash = currentcash[0]['cash']
@@ -68,10 +69,12 @@ def password():
         if not request.form.get("password"):
             return apology("must provide password", 400)
 
+        # Checks if user password matches confirmation  
         if request.form.get("password") != request.form.get("confirmation"):
             return apology("passwords do not match", 400)
-
+        
         hashpassword = generate_password_hash(request.form.get("password"))
+        # Updates the database with new user password
         db.execute("UPDATE users SET hash = ? WHERE id = ?", hashpassword, user_id)
         return redirect("/")
 
@@ -90,8 +93,6 @@ def buy():
             return apology("Invalid text entered")
         if float (request.form.get("shares")) < 0:
             return apology("Negative text entered")
-        if float (request.form.get("shares")) % 10 == 0:
-            return apology("No fractional value allowed")
         stockprice = stock["price"]
         stocksymbol = stock["symbol"]
         amount = request.form.get("shares")
@@ -99,6 +100,7 @@ def buy():
         dateTimeObj = datetime.now()
         cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
         cash = cash[0]['cash']
+        # Checks if current balance is higher than purchase price, returns apology if not
         if (int (amount) * stockprice > int (cash)):
             return apology("You can't afford this")
         cost = int (amount) * stockprice
@@ -107,6 +109,7 @@ def buy():
         db.execute("UPDATE users SET cash = ? WHERE id = ?", moneyremaining, user_id)
         db.execute("INSERT INTO purchases (userID, stock, shares, price, type, time) VALUES(?, ?, ?, ?, ?, ?)", user_id, stocksymbol, amount, stockprice, "Bought", dateTimeObj)
         rows = db.execute("SELECT * FROM history WHERE userID = ? AND stock = ?", user_id, stocksymbol)
+        # Checks to see if stock has been purchased before, updates history if so, creates new row in history if now
         if len(rows) == 1:
             currentshares = db.execute("SELECT shares FROM history WHERE userID = ? AND stock = ?", user_id, stocksymbol)
             currentshares = currentshares[0]['shares']
@@ -133,12 +136,19 @@ def history():
 @login_required
 def addcash():
     user_id = session["user_id"]
+    
     # Check for user input of cash
     extracash = request.form.get("cash")
+    
+    # Ensure a number was submitted
     if not extracash.isnumeric():
         return apology("Invalid amount entered")
+    
+    # Ensure a positive was submitted
     if float (extracash) < 0:
         return apology("Negative amount entered")
+    
+    # Checks database for current balance, adds extra cash onto current balance
     currentcash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
     currentcash = currentcash[0]['cash']
     newcash = float(currentcash) + float (extracash)
@@ -153,7 +163,7 @@ def login():
     # Forget any user_id
     session.clear()
 
-    # User reached route via POST (as by submitting a form via POST)
+    # User reached route via POST
     if request.method == "POST":
 
         # Ensure username was submitted
@@ -167,7 +177,6 @@ def login():
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = ?", (username,),)
-        print (rows[0])
         # Ensure username exists and password is correct
         if len(rows) != 1:
             return apology("invalid username", 400)
