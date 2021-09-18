@@ -87,15 +87,15 @@ def buy():
     """Buy shares of stock"""
     if request.method=="POST":
         stock = lookup(request.form.get("symbol"))
-        if not stock:
-            return apology("No amount of stock chosen")
-        if not request.form.get("shares").isnumeric():
-            return apology("Invalid text entered")
-        if float (request.form.get("shares")) < 0:
-            return apology("Negative text entered")
         stockprice = stock["price"]
         stocksymbol = stock["symbol"]
         amount = request.form.get("shares")
+        if not stock:
+            return apology("No amount of stock chosen")
+        if not amount.isnumeric():
+            return apology("Invalid text entered")
+        if float (amount) < 0:
+            return apology("Negative text entered")
         user_id = session["user_id"]
         dateTimeObj = datetime.now()
         cash = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
@@ -230,7 +230,6 @@ def register():
         rowtest = db.execute("SELECT * FROM users WHERE username = ?", (username,),)
         if len(rowtest) == 1:
             return apology("username already exists!", 400)
-
         if not request.form.get("password"):
             return apology("must provide password", 400)
 
@@ -246,14 +245,14 @@ def register():
 @login_required
 def sell():
     if request.method == "POST":
-        if not request.form.get("symbol"):
+        amount = request.form.get("shares")
+        stock = request.form.get("symbol")
+        if not stock:
             return apology("No stock chosen", 400)
-        if not request.form.get("shares"):
+        if not amount:
             return apology("No amount chosen", 400)
         user_id = session["user_id"]
         dateTimeObj = datetime.now()
-        amount = request.form.get("shares")
-        stock = request.form.get("symbol")
         amountofstocks = db.execute("SELECT shares FROM history WHERE userID = ? AND stock = ?", user_id, stock)
         amountofstocks = amountofstocks[0]['shares']
         if int (amount) > int (amountofstocks):
@@ -286,18 +285,14 @@ def errorhandler(e):
 @login_required
 def sorthistory():
     methodchosen = request.form.get("choice")
+    user_id = session["user_id"]
     if methodchosen == "name":
-        user_id = session["user_id"]
         purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY stock", user_id)
-        return render_template("history.html", purchasehistory=purchasehistory)
-    if methodchosen == "time":
-        user_id = session["user_id"]
+    elif methodchosen == "time":
         purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY time", user_id)
-        return render_template("history.html", purchasehistory=purchasehistory)
-    if methodchosen == "value":
-        user_id = session["user_id"]
+    elif methodchosen == "value":
         purchasehistory = db.execute("SELECT stock, shares, price, type, time FROM purchases WHERE userID = ? ORDER BY price", user_id)
-        return render_template("history.html", purchasehistory=purchasehistory)
+    return render_template("history.html", purchasehistory=purchasehistory)
 
 # Listen for errors
 for code in default_exceptions:
