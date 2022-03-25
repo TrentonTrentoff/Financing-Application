@@ -38,7 +38,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Make sure API key is set
-if not os.environ.get("API_KEY"):
+if not os.environ.get("IEX_TOKEN"):
     raise RuntimeError("API_KEY not set")
 
 
